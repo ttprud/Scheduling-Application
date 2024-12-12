@@ -1,5 +1,6 @@
 import calendar
 import datetime
+import re
 
 
 def createTimeSlots(startTime, endTime, intervalMinutes):
@@ -19,22 +20,38 @@ endTime = datetime.datetime.strptime("23:59", "%H:%M")
 intervalMinutes = 60
 
 timeSlots = createTimeSlots(startTime, endTime, intervalMinutes)
-print(timeSlots)
 
 timeInput = None
 description = None
 
+timeInputPattern = r"^([0][1-9]|1[0-2]):([0][0]\s([AP][M])$)"
 
 
 
-def addNewEvent(slots, timeInput, description):
-        timeInput = input("\nEnter the time slot you want to add something to. (e.g., 05:00 PM:): ")
-        if timeInput in timeSlots and timeSlots[timeInput] is not "":
-            print(f"Sorry, the time slot {timeInput} is already booked for: {timeSlots[timeInput]}")
+def addNewEvent(timeSlots, timeInput, description):
+        while True:
+            timeInput = input("\nEnter the time slot you want to add something to. (e.g., 05:00 PM:): ")
+            if re.match(timeInputPattern, timeInput):
+                break
+            else: 
+                print("Invalid time format. Please enter the time again")
+        
+
+        if timeInput in timeSlots and timeSlots[timeInput] != "":
+            return overwrite(timeInput, description)
         else:
             description = input("Enter the description for the selected time slot: ")
             timeSlots[timeInput] = description
             print(f"Description for {timeInput} updated to: {description}")
+
+
+def overwrite(timeInput, description):
+    overwrite = input(f"Sorry, the time slot {timeInput} is already booked for: {timeSlots[timeInput]} \nWould you like to overwrite the current event? Y/N ")
+    if overwrite == str("Y") or overwrite == str("y"):
+        description = input("Enter the new event description: ")
+        timeSlots[timeInput] = description
+    else:
+        print("Event not added. Please try a new time block")
         
 
             
@@ -43,7 +60,7 @@ def addNewEvent(slots, timeInput, description):
 def deleteEvent(slots, timeInput):
     timeInput = input("\nEnter time slot you want to delete. (e.g., 05:00 PM: )")
     if timeInput in slots:
-        slots[timeInput] = None
+        timeSlots[timeInput] = None
         print(f"Descriptions for time {timeInput} has been deleted!")
     else:
         print(f"Not a valid time slot")
